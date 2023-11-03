@@ -53,6 +53,7 @@ void TURN_LEFT_FAST() {
   analogWrite(FRONT_L, PWM_LOW);
 }
 int CAR_STATE(int IR_READ[], int f) {
+  f=0;
   if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 0 && IR_READ[3] == 1 && IR_READ[4] == 1) {
     FORWARD();
   } else if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 0 && IR_READ[4] == 1) {
