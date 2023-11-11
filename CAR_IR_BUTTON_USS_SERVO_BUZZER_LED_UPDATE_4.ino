@@ -25,19 +25,25 @@
 #define NOTE_B5 988 
 int IR[5] = { A0, A1, A2, A3, A4 };//IR SENSOR SIGNAL PINS 
 int IR_READ[5];              //IR SENSOR READINGS SAVED IN ARRAY
-int PWM_LOW = 60;           //MOTOR SPEED CONTROL "SLOW"
-int PWM_MED = 110;         //MOTOR SPEED CONTROL "MODERATE"
-int PWM_HIGH = 180;       //MOTOR SPEED CONTROL "FAST"
+int PWM_LOW = 20;           //MOTOR SPEED CONTROL "SLOW"
+int PWM_MED = 120;         //MOTOR SPEED CONTROL "MODERATE"
+int PWM_HIGH = 140;       //MOTOR SPEED CONTROL "FAST"
 int OLD_STATE;           //OLD STATE FOR BUTTON
 int flag = 0;           // "START/STOP" FLAG TO AVOID THE CODE AFTER COMPLETING THE MISSION
 Servo SERVO_1;
-//BUZZER CODE END
+int POS=0;
+float USS_READ;
+float dist=15;
+ float SONG_SPEED = 1.0;
+  //SONG NOTES
+   int NOTES[] = {
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0, NOTE_A4, NOTE_G4, NOTE_A4, 0, NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0, NOTE_A4, NOTE_G4, NOTE_A4, 0, NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0, NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0, NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_D5, NOTE_E5, NOTE_A4, 0, NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0, NOTE_C5, NOTE_A4, NOTE_B4, 0
+  }; 
+ // DURATION FOR EACH NOTE IN MILLISECOND
+ int duration[] = {
+  125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 375, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 375, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 125, 250, 125, 125, 125, 250, 125, 125, 250, 125, 250, 125, 125, 125, 250, 125, 125, 125, 125, 375, 375
+ };
 void setup() {
-  pinMode(A0,INPUT); //EMSA7 {A0~A4} LAW EL CODE ESHTA8AL 3ADI
-  pinMode(A1,INPUT);
-  pinMode(A2,INPUT);
-  pinMode(A3,INPUT);
-  pinMode(A4,INPUT);
   pinMode(FORWARD_RM, OUTPUT);
   pinMode(FORWARD_LM, OUTPUT);
   pinMode(BACKWARD_RM, OUTPUT);
@@ -46,25 +52,16 @@ void setup() {
   pinMode(BUZZER, OUTPUT);
   SERVO_1.attach(5);
   pinMode(LED_BRAKE, OUTPUT);
-  //pinMode(USS_TRIG, OUTPUT);
-  // pinMode(USS_ECHO, INPUT);
+  pinMode(USS_TRIG, OUTPUT);
+  pinMode(USS_ECHO, INPUT);
   Serial.begin(9600);
 }
 void MUSIC() {
-  float SONG_SPEED = 1.0;
-  //SONG NOTES
-   int NOTES[] = {
-    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0, NOTE_A4, NOTE_G4, NOTE_A4, 0, NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0, NOTE_A4, NOTE_G4, NOTE_A4, 0, NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0, NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0, NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, NOTE_D5, NOTE_E5, NOTE_A4, 0, NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0, NOTE_C5, NOTE_A4, NOTE_B4, 0
-  }; 
- // DURATION FOR EACH NOTE IN MILLISECOND
- int DURATION[] = {
-  125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 375, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 375, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 250, 125, 125, 125, 125, 125, 250, 125, 125, 125, 250, 125, 125, 250, 125, 250, 125, 125, 125, 250, 125, 125, 125, 125, 375, 375
- };
  int TOTAL_NOTES = sizeof(NOTES) / sizeof(int);
   // Loop through each note
   for (int i = 0; i < TOTAL_NOTES; i++) {
     int CURRENT_TONE = NOTES[i];
-    float WAIT = DURATION[i] / SONG_SPEED;
+    float WAIT = duration[i] / SONG_SPEED;
     // Play tone if CURRENT_TONE is not 0 frequency, otherwise pause (noTone)
     if (CURRENT_TONE != 0) {
       tone(BUZZER, NOTES[i], WAIT);  // tone(pin, frequency, duration)
@@ -74,8 +71,8 @@ void MUSIC() {
   }
 }
 void FORWARD() {
-  analogWrite(FORWARD_RM, PWM_MED);
-  analogWrite(FORWARD_LM, PWM_MED);
+  analogWrite(FORWARD_RM, 100);
+  analogWrite(FORWARD_LM,100);
 }
 void STOP() {
   analogWrite(FORWARD_RM, LOW);
@@ -99,16 +96,31 @@ void TURN_LEFT_FAST() {
   analogWrite(FORWARD_LM, PWM_LOW);
 }
 //FUNCTION TO GET THE IR READINGS AND SEND PWM SIGNALS TO THE MOTORS AND CONTROL IT'S MOVEMENT DIRECTION
-void CAR_STATE(int IR_READ[]) {
-  if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 0 && IR_READ[3] == 1 && IR_READ[4] == 1) {
+void CAR_STATE(int IR_READ[]) {   
+  int USS_READ = USS();
+    while (USS_READ <= dist) {  // OBSTACLE CHECK
+      STOP();
+      SERVO_M();
+      USS_READ = USS();
+      if (USS_READ > dist) {
+        dist = 10;
+      }
+      else
+      {
+        dist--;
+        FORWARD();
+      }
+    } 
+
+   if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 0 && IR_READ[3] == 1 && IR_READ[4] == 1 && USS_READ>15) {
     FORWARD();
-  } else if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 0 && IR_READ[4] == 1) {
+  } else if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 0 && IR_READ[4] == 1 && USS_READ>15 ) {
     TURN_RIGHT();
-  } else if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 0) {
+  } else if (IR_READ[0] == 1 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 0 && USS_READ>15 ) {
     TURN_RIGHT_FAST();
-  } else if (IR_READ[0] == 1 && IR_READ[1] == 0 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 1) {
+  } else if (IR_READ[0] == 1 && IR_READ[1] == 0 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 1 && USS_READ>15 ) {
     TURN_LEFT();
-  } else if (IR_READ[0] == 0 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 1) {
+  } else if (IR_READ[0] == 0 && IR_READ[1] == 1 && IR_READ[2] == 1 && IR_READ[3] == 1 && IR_READ[4] == 1  && USS_READ>15) {
     TURN_LEFT_FAST();
   } else if (IR_READ[0] == 0 && IR_READ[1] == 0 && IR_READ[2] == 0 && IR_READ[3] == 0 && IR_READ[4] == 0) {
     STOP();
@@ -134,39 +146,38 @@ int USS() {
   digitalWrite(USS_TRIG, LOW);
   //delayMicroseconds(2);
   digitalWrite(USS_TRIG, HIGH);
-  // delayMicroseconds(10);
+   //delayMicroseconds(10);
   digitalWrite(USS_TRIG, LOW);
   DURATION = pulseIn(USS_ECHO, HIGH);
   DISTANCE = (DURATION * 0.0343) / 2;
-  Serial.print("Distance: ");
-  Serial.println(DISTANCE);
   //delay(100);
   return DISTANCE;
 }
 //OBSTACLE REMOVAL
 int SERVO_M() {
-  int POS = 0;
   for (POS = 0; POS <= 180; POS += 1) {
     SERVO_1.write(POS);
+    // Serial.print("A7A");
+    delayMicroseconds(1000);
   }
   for (POS = 180; POS >= 0; POS -= 1) {
     SERVO_1.write(POS);
+    //Serial.print("A7777A");
+    delayMicroseconds(1000);
   }
 }
 void loop() {
+  SERVO_1.write(POS);
   int STATE = BUTTON_STATE();  //IF BUTTON STATE "ON"
   if (STATE == LOW) {
-    MUSIC();
-    while (flag == 0) {
+    
+    USS_READ=USS();
+    while (flag == 0) 
+    {
       for (int i = 0; i < 5; i++) {
         IR_READ[i] = digitalRead(IR[i]);  //STORE IR READINGS IN ARRAY
       }
-      CAR_STATE(IR_READ);
-      int USS_READ = USS();
-      if (USS_READ <= 10) {  // OBSTACLE CHECK
-        STOP();
-        SERVO_M();  //OBSTACLE REMOVE
-      }
-    }
+      CAR_STATE(IR_READ);    
   }
+}
 }
