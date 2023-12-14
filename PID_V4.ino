@@ -73,6 +73,8 @@ void movement()
   }
 void getpidvalue()
 {
+if(serial_input.substring(0,1)=="k")
+ {
   if(serial_input.substring(0,2)=="kp")
   {serial_input.remove(0,2);
   kp=serial_input.toFloat();
@@ -85,7 +87,7 @@ void getpidvalue()
   {serial_input.remove(0,2);
   kd=serial_input.toFloat();
     }
-  if(serial_input.substring(0,2)=="sp")
+  if(serial_input.substring(0,2)=="ks")
   {serial_input.remove(0,2);
   speed=serial_input.toInt();
     }
@@ -104,6 +106,7 @@ void getpidvalue()
    lcd.setCursor(0,1);
    lcd.print("speed=");
    lcd.print(speed);
+ }
 }
 
 void readIR()
@@ -183,7 +186,7 @@ void FollowLine()
  else
  {
    currentError= setPos-currentPos;
-   I+=currentError;
+   I=currentError+prevError;
    D=currentError-prevError;
    prevError=currentError;
    PIDOut=kp*currentError+ki*I+kd*D; 
@@ -264,12 +267,11 @@ void loop()
     Flag=0;
   if(Flag==0)
   {
-  FollowLine(); 
+   FollowLine(); 
    while(distance<setdistance&&distance>0)
- {
- STOP();
- SERVO_M();
- }
+   {
+   STOP();
+   SERVO_M();
+   }
   }
-  I=0;
 }
