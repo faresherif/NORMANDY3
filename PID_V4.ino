@@ -265,7 +265,7 @@ void loop()
   distance=USS();
   if(digitalRead(BUTTON)==LOW)
     Flag=0;
-  if(Flag==0)
+  if(Flag==0 && Mode==1)
   {
    FollowLine(); 
    while(distance<setdistance&&distance>0)
