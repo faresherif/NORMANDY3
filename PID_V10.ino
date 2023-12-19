@@ -308,6 +308,8 @@ void ENCODER_RPM_1()
   float currentTime = millis();
   if (currentTime - prevTime >= 1000)
   {
+    // update the previous time
+    prevTime = currentTime;
     // Calculate RPM
     float rpm1 = (float)encoderCount * (60.0 / (float)holes);
     float rpm2 = (float)encoderCount1 * (60.0 / (float)holes);    
@@ -322,11 +324,9 @@ void ENCODER_RPM_1()
     lcd.print("        ");  // Clear previous value
     lcd.setCursor(11, 1);
     lcd.print(rpm2, 1);
-    // Reset the encoder count and update the previous time
+    // Reset the encoder count
     encoderCount1 = 0;
-    // Reset the encoder count and update the previous time
     encoderCount = 0;
-    prevTime = currentTime;
   }
 }
 
