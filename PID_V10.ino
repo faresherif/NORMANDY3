@@ -351,8 +351,8 @@ void setup()
   pinMode(SERVO, OUTPUT);
   pinMode(encoderpin_1, INPUT);
   pinMode(encoderpin_2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(encoderpin_1), encoderISR_1, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encoderpin_2), encoderISR_2, HIGH);
+  attachInterrupt(digitalPinToInterrupt(encoderpin_1), encoderISR_1, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoderpin_2), encoderISR_2, RISING);
   lcd.init();                      // initialize the lcd 
   lcd.backlight(); 
 //LCD CODE START
