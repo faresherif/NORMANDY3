@@ -1,0 +1,14 @@
+for(int i=0;i<50;i++)
+  {
+  digitalWrite(servo,HIGH);
+  delayMicroseconds(500);
+  digitalWrite(servo,LOW);
+   delay(20);
+  }
+  for(int i=0;i<50;i++)
+  {
+  digitalWrite(servo,HIGH);
+  delayMicroseconds(2500);
+  digitalWrite(servo,LOW);
+  delay(20);
+  }
