@@ -15,14 +15,10 @@
 
 volatile int encoderCount = 0; 
 volatile int encoderCount1 = 0;
-int holes=20;
-float prevTime=0;
-float prevTime1=0;
 int IR[5] = { A0, A1, A2, A3, 7 };  
-int IR_READ[5],speed,currentError,prevError,Flag=1,mspeed=150,Mode,setdistance=10,POS=0; 
+int IR_READ[5],speed,currentError,prevError,Flag=1,mspeed=150,Mode,setdistance=10,POS=0,holes=20; 
 String serial_input= "";
-float kp,kd,ki,distance; 
-Servo SERVO_1;
+float kp,kd,ki,distance,prevTime=0; 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte HEART[8] ={
@@ -190,18 +186,7 @@ void USS()
   distance = 60;
   //delay(100);
 }
-//OBSTACLE REMOVAL
-int SERVO_M() 
-{
-  for (POS = 0; POS <= 180; POS += 1) {
-    SERVO_1.write(POS);
-    delayMicroseconds(1000);
-  }
-  for (POS = 180; POS >= 0; POS -= 1) {
-    SERVO_1.write(POS);
-    delayMicroseconds(1000);
-  }
-}
+
 void FollowLine()
 {int rspeed,lspeed,I,D,PIDOut;
    readIR();
@@ -302,7 +287,7 @@ void servocnt()
   delayMicroseconds(17500);
   }
 }
-void ENCODER_RPM_1()
+void ENCODER_RPM()
 {
   // Calculate RPM every second
   float currentTime = millis();
@@ -413,7 +398,7 @@ void setup()
 void loop()
 {
   getSerial();
-  ENCODER_RPM_1();
+  ENCODER_RPM();
   USS();
   if(digitalRead(BUTTON)==LOW)
     Flag=0;
@@ -424,7 +409,6 @@ void loop()
    {
      USS();
      STOP();
-     //SERVO_M();
      servocnt();
     } 
   }
