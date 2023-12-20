@@ -16,9 +16,9 @@
 volatile int encoderCount = 0; 
 volatile int encoderCount1 = 0;
 int IR[5] = { A0, A1, A2, A3, 7 };  
-int IR_READ[5],speed,currentError,prevError,Flag=1,mspeed=150,Mode,setdistance=10,POS=0,holes=20; 
+int IR_READ[5],speed=225,currentError,prevError,Flag=1,mspeed=150,Mode,setdistance=10,POS=0,holes=20; 
 String serial_input= "";
-float kp,kd,ki,distance,prevTime=0; 
+float kp=110,kd=1000,ki=10,distance,prevTime=0; 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte HEART[8] ={
