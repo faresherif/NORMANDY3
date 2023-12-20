@@ -235,6 +235,9 @@ void readIR()
 void error()
 {
   switch(IR_READ[0]*16 + IR_READ[1]*8 + IR_READ[2]*4 + IR_READ[3]*2 + IR_READ[4]*1){
+  case 16:
+  currentError=6;
+  break;
   case 24:
   currentError=5;
   break;
@@ -267,6 +270,9 @@ void error()
   break;
   case 3:
   currentError=-5;
+  break;
+  case 1:
+  currentError=-6;
   break;
  }
 }
